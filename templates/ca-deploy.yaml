@@ -1,0 +1,122 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blockchain-ordererca
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: ordererca
+    spec:
+      volumes:
+      - name: sharedvolume
+        persistentVolumeClaim:
+          claimName: shared-pvc
+      containers:
+      - name: ordererca
+        image: hyperledger/fabric-ca:1.3.0
+        command: ["bin/bash", "-c", "/shared/setup/start-root-ca.sh", "2>$1"]
+        env:
+        - name: FABRIC_CA_SERVER_HOME
+          value: /etc/hyperledger/fabric-ca
+        - name: FABRIC_CA_SERVER_TLS_ENABLED
+          value: "true"
+        - name: FABRIC_CA_SERVER_CSR_CN
+          value: "ordererca"
+        - name: FABRIC_CA_SERVER_CSR_HOSTS
+          value: "ordererca"
+        - name: FABRIC_CA_SERVER_DEBUG
+          value: "true"
+        - name: BOOTSTRAP_USER_PASS
+          value: "ordererca-admin:ordererca-adminpw"
+        - name: TARGET_CERTFILE
+          value: /shared/orderer-org-ca-cert.pem
+        - name: FABRIC_ORGS
+          value: "orderer-org artist-org archive-org"
+        volumeMounts:
+        - mountPath: /shared
+          name: sharedvolume
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blockchain-artistca
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: artistca
+    spec:
+      volumes:
+      - name: sharedvolume
+        persistentVolumeClaim:
+          claimName: shared-pvc
+      containers:
+      - name: artistca
+        image: hyperledger/fabric-ca:1.3.0
+        command: ["bin/bash", "-c", "/shared/setup/start-root-ca.sh", "2>$1"]
+        env:
+        - name: FABRIC_CA_SERVER_HOME
+          value: /etc/hyperledger/fabric-ca
+        - name: FABRIC_CA_SERVER_TLS_ENABLED
+          value: "true"
+        - name: FABRIC_CA_SERVER_CSR_CN
+          value: "artistca"
+        - name: FABRIC_CA_SERVER_CSR_HOSTS
+          value: "artistca"
+        - name: FABRIC_CA_SERVER_DEBUG
+          value: "true"
+        - name: BOOTSTRAP_USER_PASS
+          value: "artistca-admin:artistca-adminpw"
+        - name: TARGET_CERTFILE
+          value: /shared/orderer-org-ca-cert.pem
+        - name: FABRIC_ORGS
+          value: "orderer-org artist-org archive-org"
+        volumeMounts:
+        - mountPath: /shared
+          name: sharedvolume
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blockchain-archiveca
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: archiveca
+    spec:
+      volumes:
+      - name: sharedvolume
+        persistentVolumeClaim:
+          claimName: shared-pvc
+      containers:
+      - name: archiveca
+        image: hyperledger/fabric-ca:1.3.0
+        command: ["bin/bash", "-c", "/shared/setup/start-root-ca.sh", "2>$1"]
+        env:
+        - name: FABRIC_CA_SERVER_HOME
+          value: /etc/hyperledger/fabric-ca
+        - name: FABRIC_CA_SERVER_TLS_ENABLED
+          value: "true"
+        - name: FABRIC_CA_SERVER_CSR_CN
+          value: "archiveca"
+        - name: FABRIC_CA_SERVER_CSR_HOSTS
+          value: "archiveca"
+        - name: FABRIC_CA_SERVER_DEBUG
+          value: "true"
+        - name: BOOTSTRAP_USER_PASS
+          value: "archiveca-admin:archiveca-adminpw"
+        - name: TARGET_CERTFILE
+          value: /shared/orderer-org-ca-cert.pem
+        - name: FABRIC_ORGS
+          value: "orderer-org artist-org archive-org"
+        volumeMounts:
+        - mountPath: /shared
+          name: sharedvolume

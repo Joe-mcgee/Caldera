@@ -10,3 +10,7 @@ This tool is named in honour of American sculptor Alexander Calder, whose mobile
 
 ## Setting Up
 
+### Dev
+As a distributed system This application is containerized and managed as a Kubernetes cluster. I recommend Minikube for development purposes.
+
+
