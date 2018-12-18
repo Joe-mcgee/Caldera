@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-ordererca
+  labels:
+    run: blockchain-ordererca
+spec:
+  type: NodePort
+  selector:
+    name: ordererca
+  ports:
+  - protocol: TCP
+    nodePort: 30054
+    targetPort: 7054
+    port: 30054
+    name: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-artistca
+  labels:
+    run: blockchain-artistca
+spec:
+  type: NodePort
+  selector:
+    name: artistca
+  ports:
+  - protocol: TCP
+    nodePort: 31054
+    targetPort: 7054
+    port: 31054
+    name: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-archiveca
+  labels:
+    run: blockchain-archiveca
+spec:
+  type: NodePort
+  selector:
+    name: archiveca
+  ports:
+  - protocol: TCP
+    nodePort: 32054
+    targetPort: 7054
+    port: 32054
+    name: grpc
+---
+
+
