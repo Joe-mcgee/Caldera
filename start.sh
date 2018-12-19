@@ -73,11 +73,17 @@ function deployCA {
 	done
 }
 
+function setupFabric {
+	ORDERERCA=$(kubectl get pods | grep ordererca | awk '{print $1}')
+	kubectl exec -it $ORDERERCA -- bash -c "/shared/setup/enroll-orderer.sh"
+}
+
 function main {
 	runCreateVolume $PVNAME $PVCNAME
 	copySetupScripts
 	createCaServices
 	deployCA
+	setupFabric
 }
 
 main

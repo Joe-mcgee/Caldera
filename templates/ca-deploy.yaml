@@ -17,12 +17,14 @@ spec:
       containers:
       - name: ordererca
         image: hyperledger/fabric-ca:1.3.0
-        command: ["bin/bash", "-c", "/shared/setup/start-root-ca.sh", "2>$1"]
+        command: ["/bin/bash", "-c", "/shared/setup/start-root-ca.sh"]
         env:
+        - name: FABRIC_CA_SERVER_NAME
+          value: "ordererca"
         - name: FABRIC_CA_SERVER_HOME
           value: /etc/hyperledger/fabric-ca
         - name: FABRIC_CA_SERVER_TLS_ENABLED
-          value: "true"
+          value: "false"
         - name: FABRIC_CA_SERVER_CSR_CN
           value: "ordererca"
         - name: FABRIC_CA_SERVER_CSR_HOSTS
@@ -33,8 +35,14 @@ spec:
           value: "ordererca-admin:ordererca-adminpw"
         - name: TARGET_CERTFILE
           value: /shared/orderer-org-ca-cert.pem
+        - name: FABRIC_CA_CLIENT_HOME
+          value: /etc/hyperledger/fabric-ca
+        - name: FABRIC_CA_CLIENT_TLS_CERTFILES
+          value: /shared/orderer-org-ca-cert.pem
         - name: FABRIC_ORGS
           value: "orderer-org artist-org archive-org"
+        - name: GODEBUG
+          value: "netdns=go"
         volumeMounts:
         - mountPath: /shared
           name: sharedvolume
@@ -63,7 +71,7 @@ spec:
         - name: FABRIC_CA_SERVER_HOME
           value: /etc/hyperledger/fabric-ca
         - name: FABRIC_CA_SERVER_TLS_ENABLED
-          value: "true"
+          value: "false"
         - name: FABRIC_CA_SERVER_CSR_CN
           value: "artistca"
         - name: FABRIC_CA_SERVER_CSR_HOSTS
@@ -104,7 +112,7 @@ spec:
         - name: FABRIC_CA_SERVER_HOME
           value: /etc/hyperledger/fabric-ca
         - name: FABRIC_CA_SERVER_TLS_ENABLED
-          value: "true"
+          value: "false"
         - name: FABRIC_CA_SERVER_CSR_CN
           value: "archiveca"
         - name: FABRIC_CA_SERVER_CSR_HOSTS
