@@ -9,7 +9,7 @@ Organizations:
     ID: artist-orgMSP
     MSPDir: /shared/orgs/artist-org/msp
     AnchorPeers:
-      - Host: blockchain-artist-org
+      - Host: blockchain-artist-org-peer
         Port: 30110
 
   - &archive-org
@@ -17,7 +17,7 @@ Organizations:
     ID: archive-orgMSP
     MSPDir: /shared/orgs/archive-org/msp
     AnchorPeers:
-      - Host: blockchain-archive-org
+      - Host: blockchain-archive-org-peer
         Port: 30210
 
 Orderer: &OrdererDefaults

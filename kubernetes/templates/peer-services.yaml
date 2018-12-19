@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-orderer
+  labels:
+    run: blockchain-orderer
+spec:
+  type: NodePort
+  selector:
+    name: orderer
+  ports:
+  - protocol: TCP
+    nodePort: 31010
+    targetPort: 31010
+    port: 31010
+    name: grpc
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-artist-org-peer
+  labels:
+    run: blockchain-artist-org-peer
+spec:
+  type: NodePort
+  selector:
+    name: artist-org-peer
+  ports:
+  - protocol: TCP
+    nodePort: 30110
+    targetPort: 30110
+    port: 30110
+    name: grpc
+  - protocol: TCP
+    nodePort: 30111
+    targetPort: 30111
+    port: 30111
+    name: events
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blockchain-archive-org-peer
+  labels:
+    run: blockchain-archive-org-peer
+spec:
+  type: NodePort
+  selector:
+    name: archive-org-peer
+  ports:
+  - protocol: TCP
+    nodePort: 30210
+    targetPort: 30210
+    port: 30210
+    name: grpc
+  - protocol: TCP
+    nodePort: 30211
+    targetPort: 30211
+    port: 30211
+    name: events
+  - protocol: TCP
+    nodePort: 30312
+    targetPort: 7054
+    port: 30312
+    name: grpc
+---

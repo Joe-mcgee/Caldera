@@ -1,7 +1,7 @@
 #!/bin/bash
 SDIR=$(dirname "$0")
 source $SDIR/env.sh
-
+eval $(minikube docker-env)
 function runCreateVolume {
 	local pvName="$1" pvcName="$2"
 	echo -e "\nCreating Volume"
@@ -103,6 +103,22 @@ function generateArtifacts {
 	done
 }
 
+function createPeerServices {
+	echo -e "\nCreating orderer and peer services"
+	kubectl create -f ${TEMPLATEPATH}/peer-services.yaml
+}
+
+function deployPeers {
+	docker build -t hyperledger/fabric-ca-orderer:1.3.0 - < ./dockerfiles/fabric-ca-orderer.dockerfile
+	kubectl create -f ${TEMPLATEPATH}/peer-deploy.yaml
+	NUMPENDING=$(kubectl get deployments | grep blockchain | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+	while [ "${NUMPENDING}" != "0" ]; do
+	    echo "Waiting on pending deployments. Deployments pending = ${NUMPENDING}"
+	    NUMPENDING=$(kubectl get deployments | grep blockchain | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+	    sleep 1
+	done
+}
+
 function main {
 	runCreateVolume $PVNAME $PVCNAME
 	copySetupScripts
@@ -110,6 +126,7 @@ function main {
 	deployCA
 	fabricCryptogen
 	generateArtifacts
+	deployPeers
 }
 
 main
