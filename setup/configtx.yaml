@@ -1,0 +1,57 @@
+Organizations:
+  - &orderer-org
+    Name: orderer-org
+    ID: orderer-orgMSP
+    MSPDir: /shared/orgs/orderer-org/msp
+
+  - &artist-org
+    Name: artist-org
+    ID: artist-orgMSP
+    MSPDir: /shared/orgs/artist-org/msp
+    AnchorPeers:
+      - Host: blockchain-artist-org
+        Port: 30110
+
+  - &archive-org
+    Name: archive-org
+    ID: archive-orgMSP
+    MSPDir: /shared/orgs/archive-org/msp
+    AnchorPeers:
+      - Host: blockchain-archive-org
+        Port: 30210
+
+Orderer: &OrdererDefaults
+  OrdererType: solo
+  Addresses:
+    - blockchain-orderer:31010
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+
+Application: &ApplicationDefaults
+  Organizations:
+
+
+Profiles:
+  CalderaOrdererGenesis:
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: solo
+      Organizations:
+        - *orderer-org
+    Consortiums:
+      CalderaConsortium:
+        Organizations:
+          - *artist-org
+          - *archive-org
+
+  CalderaChannel:
+    Consortium: CalderaConsortium
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *artist-org
+        - *archive-org
