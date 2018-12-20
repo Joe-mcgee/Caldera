@@ -1,0 +1,18 @@
+version: '2'
+networks:
+  caldera_caldera:
+    external: true
+services:
+    caldera-api:
+      container_name: caldera-api
+      image: caldera-api
+      environment:
+        - PORT=3000
+        - DOCKER_SOCKET_PATH=/host/var/run/docker.sock
+        - DOCKER_CCENV_IMAGE=hyperledger/fabric-ccenv:x86_64-1.1.0
+      ports:
+        - 3000:3000
+      volumes:
+        - /var/run/:/host/var/run/
+      networks:
+        - caldera_caldera

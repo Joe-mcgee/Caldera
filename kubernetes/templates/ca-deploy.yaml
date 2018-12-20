@@ -82,6 +82,8 @@ spec:
           value: "artistca-admin:artistca-adminpw"
         - name: TARGET_CERTFILE
           value: /shared/orderer-org-ca-cert.pem
+        - name: FABRIC_CA_CLIENT_HOME
+          value: /etc/hyperledger/fabric-ca
         - name: FABRIC_ORGS
           value: "orderer-org artist-org archive-org"
         volumeMounts:
@@ -121,6 +123,8 @@ spec:
           value: "true"
         - name: BOOTSTRAP_USER_PASS
           value: "archiveca-admin:archiveca-adminpw"
+        - name: FABRIC_CA_CLIENT_HOME
+          value: /etc/hyperledger/fabric-ca
         - name: TARGET_CERTFILE
           value: /shared/orderer-org-ca-cert.pem
         - name: FABRIC_ORGS

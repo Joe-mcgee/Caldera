@@ -1,7 +1,7 @@
 #!/bin/bash
 SDIR=$(dirname "$0")
 source $SDIR/env.sh
-
+eval $(minikube docker-env)
 function runCreateVolume {
 	local pvName="$1" pvcName="$2"
 	echo -e "\nCreating Volume"
@@ -73,9 +73,50 @@ function deployCA {
 	done
 }
 
-function setupFabric {
+function fabricCryptogen {
 	ORDERERCA=$(kubectl get pods | grep ordererca | awk '{print $1}')
+	kubectl exec -it $ORDERERCA -- bash -c "mkdir -p /shared/orgs"
 	kubectl exec -it $ORDERERCA -- bash -c "/shared/setup/enroll-orderer.sh"
+	kubectl exec -it $ORDERERCA -- bash -c "mkdir -p /shared/orgs/orderer-org/msp/admincerts"
+	kubectl exec -it $ORDERERCA -- bash -c "cp /etc/hyperledger/fabric-ca/msp/signcerts/* /shared/orgs/orderer-org/msp/admincerts"
+	ARTISTCA=$(kubectl get pods | grep artistca | awk '{print $1}')
+	kubectl exec -it $ARTISTCA -- bash -c "/shared/setup/enroll-artist.sh"
+	kubectl exec -it $ARTISTCA -- bash -c "mkdir -p /shared/orgs/artist-org/msp/admincerts"
+	kubectl exec -it $ARTISTCA -- bash -c "cp /etc/hyperledger/fabric-ca/msp/signcerts/* /shared/orgs/artist-org/msp/admincerts"
+	ARCHIVECA=$(kubectl get pods | grep archiveca | awk '{print $1}')
+	kubectl exec -it $ARCHIVECA -- bash -c "/shared/setup/enroll-archive.sh"
+	kubectl exec -it $ARCHIVECA -- bash -c "mkdir -p /shared/orgs/archive-org/msp/admincerts"
+	kubectl exec -it $ARCHIVECA -- bash -c "cp /etc/hyperledger/fabric-ca/msp/signcerts/* /shared/orgs/archive-org/msp/admincerts"
+}
+
+function generateArtifacts {
+	kubectl create -f ${TEMPLATEPATH}/configtxlator-job.yaml
+	JOBSTATUS=$(kubectl get jobs | grep utils | awk '{print $3}')
+	while [ "${JOBSTATUS}" != "1" ]; do
+		sleep 1;
+		UTILSSTATUS=$(kubectl get pods | grep "utils" | awk '{print $3}')
+		if [ "${UTILSSTATUS}" == "Error" ]; then
+			echo "There is an error"
+			exit 1
+		fi
+	JOBSTATUS=$(kubectl get jobs | grep utils | awk '{print $3}')
+	done
+}
+
+function createPeerServices {
+	echo -e "\nCreating orderer and peer services"
+	kubectl create -f ${TEMPLATEPATH}/peer-services.yaml
+}
+
+function deployPeers {
+	docker build -t hyperledger/fabric-ca-orderer:1.3.0 - < ./dockerfiles/fabric-ca-orderer.dockerfile
+	kubectl create -f ${TEMPLATEPATH}/peer-deploy.yaml
+	NUMPENDING=$(kubectl get deployments | grep blockchain | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+	while [ "${NUMPENDING}" != "0" ]; do
+	    echo "Waiting on pending deployments. Deployments pending = ${NUMPENDING}"
+	    NUMPENDING=$(kubectl get deployments | grep blockchain | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+	    sleep 1
+	done
 }
 
 function main {
@@ -83,7 +124,9 @@ function main {
 	copySetupScripts
 	createCaServices
 	deployCA
-	setupFabric
+	fabricCryptogen
+	generateArtifacts
+	deployPeers
 }
 
 main
